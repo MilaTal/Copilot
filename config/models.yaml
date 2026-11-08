@@ -1,0 +1,65 @@
+# Роутер моделей. Файл правится здесь или на экране «Модели» — экран пишет сюда же и переписывает комментарии этим заголовком.
+# Ключи сюда не пишутся: только имя переменной окружения в key_env, сами ключи — в .env.local.
+# kind: openai    — любой сервер, совместимый с OpenAI Chat Completions: OpenRouter, Ollama, LM Studio, vLLM, SGLang, llama.cpp server.
+# kind: anthropic — прямой API Anthropic через официальный SDK (pip install anthropic).
+# Первая точка роли — основная, остальные — запасные по порядку.
+# Цены — долларов за 1 млн токенов, нужны для журнала расходов и потолка; price_checked — дата сверки с прайсом, дд.мм.гггг.
+# budget_usd — потолок расходов за месяц: при 90 % экран предупреждает, при 100 % вызовы останавливаются.
+# timeout_sec — общий потолок одного вызова; idle_timeout_sec — молчание сервера дольше этого считается зависанием.
+# Роли: senior — Senior Pilot; verifier и judge — другого семейства, чем Senior Pilot; reviewer — разбор кода Junior Pilot
+# (без флажка «материалы можно в облако» роутер берёт только локальные точки этой роли).
+budget_usd: 5.0           # потолок расходов приложения в $: при 90 % экран предупреждает, при 100 % вызовы останавливаются
+timeout_sec: 180
+idle_timeout_sec: 120
+endpoints:
+  openrouter-opus:
+    kind: openai
+    base_url: https://openrouter.ai/api/v1
+    model: anthropic/claude-opus-5.5
+    key_env: OPENROUTER_API_KEY
+    price_in: 4.0
+    price_out: 20.0
+    price_checked: 09.10.2026
+    family: claude
+  openrouter-qwen:
+    kind: openai
+    base_url: https://openrouter.ai/api/v1
+    model: qwen/qwen-plus
+    key_env: OPENROUTER_API_KEY
+    price_in: 0.4
+    price_out: 1.2
+    price_checked: 09.10.2026
+    family: qwen
+  ollama-local:
+    kind: openai
+    base_url: http://localhost:11434/v1
+    model: qwen3:14b
+    key_env: ''
+    price_in: 0.0
+    price_out: 0.0
+    family: qwen
+  lmstudio-local:
+    kind: openai
+    base_url: http://localhost:1234/v1
+    model: qwen3.8-27b
+    key_env: ''
+    price_in: 0.0
+    price_out: 0.0
+    family: qwen
+roles:
+  senior:
+  - openrouter-opus
+  - lmstudio-local
+  verifier:
+  - openrouter-qwen
+  - ollama-local
+  guard:
+  - openrouter-qwen
+  - ollama-local
+  judge:
+  - openrouter-qwen
+  - ollama-local
+  reviewer:
+  - openrouter-opus
+  - lmstudio-local
+  - ollama-local

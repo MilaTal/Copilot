@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Copilot ИИ-автоматизации</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+    <div>Copilot <span class="sub">проектирование ИИ-автоматизации</span></div>
+  </div>
+  <span class="project-chip" id="projectChip"></span>
+  <nav>
+    <button class="navbtn" data-view="projects">Проекты</button>
+    <button class="navbtn" data-view="step">Маршрут</button>
+    <button class="navbtn" data-view="plan">План развития</button>
+    <button class="navbtn" data-view="dev">Разработка</button>
+    <button class="navbtn" data-view="defense">Защита</button>
+    <button class="navbtn" data-view="docs">Документы</button>
+    <button class="navbtn" data-view="models">Модели</button>
+    <button class="navbtn" id="uiBtn" title="Дизайн экрана: классика, лента, карточки, рабочее место (светлое и тёмное)"></button>
+    <button class="navbtn" id="themeBtn" title="Светлая или тёмная тема">◐</button>
+  </nav>
+</header>
+
+<section class="flightplan" id="flightplan" aria-label="Полётный план проекта"></section>
+
+<main class="layout">
+  <aside class="leftcol">
+    <div class="instruments">
+      <h2>Готовность к проду</h2>
+      <div id="gauge"></div>
+      <div class="readouts" id="readouts"></div>
+    </div>
+    <div class="instruments">
+      <h2 id="annHead"><span class="h-t">Табло рекомендаций</span></h2>
+      <div class="annunciator" id="annunciator"></div>
+      <div class="legend" id="legend"><span><i style="background:var(--lamp-warning)"></i>важно до запуска</span><span><i style="background:var(--lamp-caution)"></i>на развитие</span><span><i style="background:var(--lamp-off)"></i>чисто</span><span><i style="background:var(--lamp-idle);border:1px solid #445"></i>не начат</span></div>
+    </div>
+    <div class="card-output">
+      <h2>Следующий шаг от Senior Pilot <span class="muted small" id="recCount"></span></h2>
+      <div id="recNext"></div>
+      <div class="btnrow"><button class="btn" id="recPlanBtn">Весь план развития</button></div>
+    </div>
+    <div class="card-output">
+      <h2>Рекомендации для развития <span class="muted small" id="riskCount"></span></h2>
+      <ul class="risklist" id="risklist"></ul>
+    </div>
+  </aside>
+
+  <section id="main"></section>
+
+  <aside class="rightcol">
+    <div class="card-output">
+      <h2 id="chatHead">Senior Pilot</h2>
+      <div class="chat" id="chat"></div>
+      <textarea id="chatInput" placeholder="Ваш вопрос Senior Pilot"></textarea>
+      <div class="btnrow"><button class="btn btn-primary" id="chatSend">Спросить Senior Pilot</button><span id="chatStatus" class="small muted"></span></div>
+    </div>
+    <div class="card-output">
+      <h2>Находки из прошлых полётов</h2>
+      <div id="hints"></div>
+    </div>
+  </aside>
+</main>
+
+<div id="modalRoot"></div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

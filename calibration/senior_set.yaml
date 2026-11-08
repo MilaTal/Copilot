@@ -1,0 +1,71 @@
+# Размеченный набор для калибровки Senior Pilot. Один проект — «сверка счетов поставщиков с заказами».
+# label: accepted — ответ закрывает то, что просит вопрос и его подсказка; needs_detail — без уточнения следующий шаг
+# получит пустое место или ошибку. borderline: true — спорный случай: в метрику не входит, показывается владельцу на разметку.
+# Разметка — по критериям поля hint вопроса в core/steps.yaml, а не по вкусу.
+context:
+  name: Сверка счетов поставщиков с заказами
+  answers:
+    - [1, process, "Сверить счёт поставщика с заказом в учётной системе и пометить расхождения в карточке счёта"]
+    - [1, decision_maker, "Финансовый директор"]
+    - [2, kpi_table, "Доля счетов, оплаченных без ручной сверки (главное число ЛПР) · 0 % · не задано · еженедельный отчёт казначейства"]
+    - [1, as_is_table, "Счёт пришёл PDF-вложением на общий ящик бухгалтерии · бухгалтер · почта · номер заказа ищется в теле счёта вручную"]
+cases:
+  # Ш2 (потери — первое число проекта)
+  - {step: 2, qid: loss_now, label: accepted, answer: "Бухгалтер тратит 40 минут на счёт, 120 счетов в неделю — 80 часов в неделю двух бухгалтеров; по реестру переплат за квартал — 3 оплаты сверх заказа на 410 000 ₽"}
+  - {step: 2, qid: loss_now, label: needs_detail, answer: "много времени уходит на сверку"}
+  - {step: 2, qid: loss_now, label: accepted, answer: "около 80 часов в неделю на ручную сверку"}
+  # Ш1
+  # В ответе «где» и сколько, но нет «почему» шаг долгий — Senior Pilot просит
+  # причину по ТРИЗ (v6). Случай спорный, в метрику не идёт.
+  - {step: 1, qid: bottleneck, label: accepted, borderline: true, answer: "Шаг 3 «найти заказ и сверить позиции» — 30 из 40 минут на счёт, 75 % потерь листа; окупаемость: 60 ч в неделю против оценки 0,07 $ за успешную сверку"}
+  - {step: 1, qid: bottleneck, label: needs_detail, answer: "самый долгий шаг"}
+  - {step: 1, qid: bottleneck, label: needs_detail, borderline: true, answer: "сверка позиций, потому что там больше всего ошибок"}
+  # Ш2
+  - {step: 2, qid: human_left, label: accepted, answer: "Решение об оплате счёта с расхождением остаётся у бухгалтера: оплата необратима, деньги уходят контрагенту, а расхождение бывает согласованной заменой позиции, о которой знает только закупщик"}
+  - {step: 2, qid: human_left, label: needs_detail, answer: "человек надёжнее"}
+  - {step: 2, qid: human_left, label: accepted, borderline: true, answer: "Оплату оставляем человеку — она необратима"}
+  # Ш2
+  - {step: 2, qid: success_criterion, label: accepted, answer: "Успех — расхождение помечено верно и за 5 рабочих дней бухгалтер его не отменил, либо обоснованный отказ «заказ не найден»; проверяю по журналу отмен пометок"}
+  - {step: 2, qid: success_criterion, label: needs_detail, answer: "агент отработал правильно"}
+  - {step: 2, qid: success_criterion, label: needs_detail, borderline: true, answer: "пометка поставлена без ошибок"}
+  # Ш3
+  - {step: 3, qid: trigger, label: accepted, answer: "Письмо со счётом приходит на общий ящик — планировщик раз в 5 минут забирает новые письма; настройка в scheduler.yaml сервиса"}
+  - {step: 3, qid: trigger, label: needs_detail, answer: "запускаем когда нужно"}
+  - {step: 3, qid: trigger, label: needs_detail, borderline: true, answer: "по расписанию"}
+  # Ш3
+  # 12.10.2026: в вопрос escalation на 6 шагах слита ручная очередь (manual_queue); ответ без очереди — неполный,
+  # прежняя метка accepted перевёрнута в спорный needs_detail, полный ответ с очередью — новый accepted.
+  - {step: 3, qid: escalation, label: accepted, answer: "Адресат — старший бухгалтер; срок — 4 рабочих часа; после срока счёт остаётся неоплаченным и карточка поднимается финансовому контролёру; копия — закупщику по заказу. В ручную очередь попадают счета без найденного заказа и с расхождением суммы больше 5 %; разбирает дежурный бухгалтер каждый рабочий день до 12:00; разобрано — пометка подтверждена или снята и карточка закрыта"}
+  - {step: 3, qid: escalation, label: needs_detail, borderline: true, answer: "Адресат — старший бухгалтер; срок — 4 рабочих часа; после срока счёт остаётся неоплаченным и карточка поднимается финансовому контролёру; копия — закупщику по заказу"}
+  - {step: 3, qid: escalation, label: needs_detail, answer: "сообщим ответственному"}
+  - {step: 3, qid: escalation, label: needs_detail, borderline: true, answer: "старшему бухгалтеру до конца дня"}
+  # Ш3
+  - {step: 3, qid: idempotency, label: accepted, answer: "Ключ — ИНН поставщика + номер счёта + дата счёта; повторная пометка по тому же ключу не ставится, ключи хранятся в таблице обработанных счетов"}
+  - {step: 3, qid: idempotency, label: needs_detail, answer: "проверяем, что не дублируется"}
+  - {step: 3, qid: idempotency, label: needs_detail, borderline: true, answer: "ключ — идентификатор письма"}
+  # Ш4
+  - {step: 4, qid: limit_outcome, label: accepted, answer: "Отдельный статус stopped_by_limit с номером шага в карточке счёта; ветка в очередь старшему бухгалтеру; в журнале «шаг 12 из 12»; повтор после предела запрещён"}
+  - {step: 4, qid: limit_outcome, label: needs_detail, answer: "агент просто останавливается"}
+  - {step: 4, qid: limit_outcome, label: needs_detail, borderline: true, answer: "в журнале пишем, что сработал предел"}
+  # Ш6
+  - {step: 6, qid: pilot_scope, label: accepted, answer: "С 03.11.2026 по 28.11.2026, 2 бухгалтера отдела расчётов, только шаг To-Be 2 «сверить счёт с заказом», режим тени — оплату решают как сейчас"}
+  - {step: 6, qid: pilot_scope, label: needs_detail, answer: "небольшой пилот на отделе"}
+  - {step: 6, qid: pilot_scope, label: needs_detail, borderline: true, answer: "месяц на двух бухгалтерах"}
+  # Ш6
+  - {step: 6, qid: monitoring, label: accepted, answer: "Журнал по строке на шаг: время, модель, токены, цена, исход; сводка по дням — доля stopped_by_limit и ошибок; сообщение старшему бухгалтеру, если отказов больше 10 % за час"}
+  - {step: 6, qid: monitoring, label: needs_detail, answer: "смотрим логи"}
+  - {step: 6, qid: monitoring, label: needs_detail, borderline: true, answer: "пишем лог вызовов модели"}
+  # Ш5
+  - {step: 5, qid: attack_expectations, label: accepted, answer: "Инъекция в счёте — пометка не меняется, код не исполняет инструкции из текста, статус queued; разгон стоимости — остановка по потолку 0,40 $ до вызова; повтор — второй запуск с тем же ключом возвращает already_done"}
+  - {step: 5, qid: attack_expectations, label: needs_detail, answer: "агент не должен ломаться"}
+  - {step: 5, qid: attack_expectations, label: needs_detail, borderline: true, answer: "на инъекцию агент отказывает"}
+  # Ш6
+  - {step: 6, qid: decision_ask, label: accepted, answer: "Перевести пилот в стадию «человек в контуре» на 4 недели в отделе расчётов ради снижения ручной сверки с 40 до 10 минут на счёт при 120 счетах в неделю"}
+  - {step: 6, qid: decision_ask, label: needs_detail, answer: "просим поддержать проект"}
+  - {step: 6, qid: decision_ask, label: needs_detail, borderline: true, answer: "просим разрешить запуск пилота"}
+  # Ш2 — новый вопрос маршрута из 6 шагов (12.10.2026)
+  - {step: 2, qid: tradeoff, label: accepted, answer: "Улучшится время сверки, может ухудшиться доверие бухгалтеров: если пометки будут ложными, их начнут игнорировать. Разводим по условию: агент помечает только расхождения больше 1 %, мелкие уходят списком в конце дня; второй показатель — доля пометок, отменённых бухгалтером, не выше 10 %"}
+  - {step: 2, qid: tradeoff, label: needs_detail, answer: "ничего не ухудшится"}
+  # Ш6 — новый вопрос маршрута из 6 шагов (12.10.2026)
+  - {step: 6, qid: user_feedback, label: accepted, answer: "Кнопка «пометка ошибочна» в карточке счёта: бухгалтер нажимает и пишет причину; случай уходит инженеру сопровождения, он разбирает в течение 2 рабочих дней, подтверждённый случай с правильным ответом добавляется в набор проверок до следующей правки промпта"}
+  - {step: 6, qid: user_feedback, label: needs_detail, answer: "пусть пишут в чат, если что-то не так"}

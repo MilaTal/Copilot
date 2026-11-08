@@ -1,0 +1,10 @@
+{
+  "name": "ai-automation-copilot",
+  "version": "1.2.0",
+  "description": "Copilot по проектированию ИИ-автоматизации: 6 шагов от идеи до прода с наставником Senior Pilot и подготовка защиты перед ЛПР.",
+  "author": {
+    "name": "MilaTal"
+  },
+  "license": "MIT",
+  "keywords": ["ai-agent", "llm", "automation", "agentic-workflow", "project-design", "n8n", "security-testing"]
+}
